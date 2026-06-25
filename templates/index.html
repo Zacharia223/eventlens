@@ -1,11 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Eventlens</title>
-    </head>
-    <body>
-        <h1>Eventlens📊</h1>
-        <p>Upload your event data and get an automated data report</p>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <h1>Turn your event data into an instant report</h1>
+    <p class="lead">Upload a CSV and EventLens profiles every column, summarises
+        your numbers, and charts the trends — automatically.</p>
+
+    <form class="upload-form" action="{{ url_for('upload') }}" method="post"
+          enctype="multipart/form-data">
+        <label class="file-drop">
+            <input type="file" name="file" accept=".csv" required>
+            <span>Choose a CSV file…</span>
+        </label>
+        <button type="submit" class="btn btn-primary">Generate report</button>
+    </form>
+
+    <p class="storage-note">
+        Storage: <strong>{{ status.mode }}</strong>
+        {% if not status.mysql %}
+            <span class="muted">(MySQL not connected — reports won't persist across restarts)</span>
+        {% endif %}
+    </p>
+</section>
+
+<section class="history">
+    <h2>Recent reports</h2>
+    {% if reports %}
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Uploaded</th>
+                    <th>Rows</th>
+                    <th>Columns</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    <td><a href="{{ url_for('report', report_id=r.id) }}">{{ r.filename }}</a></td>
+                    <td>{{ r.uploaded_at.strftime('%Y-%m-%d %H:%M') if r.uploaded_at else '—' }}</td>
+                    <td>{{ r.row_count }}</td>
+                    <td>{{ r.column_count }}</td>
+                    <td>
+                        <form action="{{ url_for('delete', report_id=r.id) }}" method="post"
+                              onsubmit="return confirm('Delete this report?');">
+                            <button type="submit" class="btn-link danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">No reports yet. Upload a CSV above to get started.</p>
+    {% endif %}
+</section>
+{% endblock %}

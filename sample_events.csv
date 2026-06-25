@@ -1,0 +1,13 @@
+event_date,event_name,event_type,city,attendees,revenue,satisfaction
+2024-01-05,New Year Webinar,webinar,Nairobi,120,1200.50,4.2
+2024-01-18,Tech Meetup,meetup,Mombasa,45,0.00,4.6
+2024-02-02,Product Launch,conference,Nairobi,530,15000.75,4.8
+2024-02-14,Design Workshop,workshop,Kisumu,60,3000.00,4.1
+2024-03-09,Growth Webinar,webinar,Nairobi,200,2500.00,3.9
+2024-03-22,Founders Meetup,meetup,Nakuru,80,500.00,4.4
+2024-04-11,Annual Conference,conference,Nairobi,720,28000.00,4.7
+2024-04-27,Marketing Workshop,workshop,Mombasa,95,4200.00,4.0
+2024-05-15,Data Webinar,webinar,Nairobi,310,3800.00,4.3
+2024-05-30,Investor Meetup,meetup,Nairobi,55,0.00,4.5
+2024-06-12,Summer Conference,conference,Kisumu,640,22000.00,4.6
+2024-06-25,UX Workshop,workshop,Nairobi,70,2900.00,4.2

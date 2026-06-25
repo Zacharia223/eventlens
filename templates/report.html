@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ record.filename }} — EventLens{% endblock %}
+
+{% block content %}
+<div class="report-head">
+    <div>
+        <h1>{{ record.filename }}</h1>
+        <p class="muted">
+            Generated report · {{ record.uploaded_at.strftime('%Y-%m-%d %H:%M') if record.uploaded_at else '' }}
+        </p>
+    </div>
+    <a class="btn" href="{{ url_for('home') }}">← New upload</a>
+</div>
+
+{% set o = report.overview %}
+<section class="cards">
+    <div class="card"><span class="card-value">{{ o.rows }}</span><span class="card-label">Rows</span></div>
+    <div class="card"><span class="card-value">{{ o.columns }}</span><span class="card-label">Columns</span></div>
+    <div class="card"><span class="card-value">{{ o.numeric_columns }}</span><span class="card-label">Numeric</span></div>
+    <div class="card"><span class="card-value">{{ o.text_columns }}</span><span class="card-label">Text</span></div>
+    <div class="card"><span class="card-value">{{ o.missing_pct }}%</span><span class="card-label">Missing cells</span></div>
+    <div class="card"><span class="card-value">{{ o.duplicate_rows }}</span><span class="card-label">Duplicate rows</span></div>
+</section>
+
+{% if report.time_series %}
+<section class="panel">
+    <h2>Activity over time</h2>
+    <p class="muted">Records per {{ report.time_series.period }}, based on
+        <code>{{ report.time_series.column }}</code>.</p>
+    <div class="chart-wrap chart-wrap-wide"><canvas id="timeSeriesChart"></canvas></div>
+</section>
+{% endif %}
+
+{% if report.categorical_summary %}
+<section class="panel">
+    <h2>Category breakdowns</h2>
+    <div class="chart-grid">
+        {% for cat in report.categorical_summary %}
+        <div class="chart-box">
+            <h3>{{ cat.column }}</h3>
+            <div class="chart-wrap"><canvas id="cat-{{ loop.index }}"></canvas></div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if report.histograms %}
+<section class="panel">
+    <h2>Numeric distributions</h2>
+    <div class="chart-grid">
+        {% for h in report.histograms %}
+        <div class="chart-box">
+            <h3>{{ h.column }}</h3>
+            <div class="chart-wrap"><canvas id="hist-{{ loop.index }}"></canvas></div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if report.numeric_summary %}
+<section class="panel">
+    <h2>Numeric summary</h2>
+    <table class="data-table">
+        <thead>
+            <tr><th>Column</th><th>Count</th><th>Min</th><th>Max</th>
+                <th>Mean</th><th>Median</th><th>Std</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+            {% for n in report.numeric_summary %}
+            <tr>
+                <td>{{ n.column }}</td><td>{{ n.count }}</td><td>{{ n.min }}</td>
+                <td>{{ n.max }}</td><td>{{ n.mean }}</td><td>{{ n.median }}</td>
+                <td>{{ n.std }}</td><td>{{ n.sum }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+<section class="panel">
+    <h2>Columns</h2>
+    <table class="data-table">
+        <thead>
+            <tr><th>Name</th><th>Type</th><th>Unique</th><th>Missing</th><th>Missing %</th></tr>
+        </thead>
+        <tbody>
+            {% for c in report.columns %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td><span class="badge badge-{{ c.dtype }}">{{ c.dtype }}</span></td>
+                <td>{{ c.unique }}</td><td>{{ c.missing }}</td><td>{{ c.missing_pct }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Data preview</h2>
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>{% for h in report.preview.headers %}<th>{{ h }}</th>{% endfor %}</tr>
+            </thead>
+            <tbody>
+                {% for row in report.preview.rows %}
+                <tr>{% for cell in row %}<td>{{ '' if cell is none else cell }}</td>{% endfor %}</tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/chart.umd.js') }}"></script>
+<script id="report-data" type="application/json">{{ report | tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}
